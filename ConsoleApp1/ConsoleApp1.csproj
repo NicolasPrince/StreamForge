@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <Folder Include="Dependencies\" />
+    <Folder Include="EmbeddedTools\" />
+	<EmbeddedResource Include="EmbeddedTools\yt-dlp.exe" LogicalName="StreamForge.EmbeddedTools.yt_dlp.exe" />
   </ItemGroup>
 
 </Project>

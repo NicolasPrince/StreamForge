@@ -12,12 +12,14 @@ namespace ConsoleApp1.Utils
         public string URL;
         public int DownloadArgs;
         public string FolderPath;
+        public string YtDlpPath;
 
-        public DownloadTask(string URL, int DownloadArgs, string DownloadPath)
+        public DownloadTask(string URL, int DownloadArgs, string DownloadPath, string YtDlpPath)
         {
             this.URL = URL;
             this.DownloadArgs = DownloadArgs;
             this.FolderPath = DownloadPath;
+            this.YtDlpPath = YtDlpPath;
         }
 
         public void Baixar()
@@ -49,13 +51,13 @@ namespace ConsoleApp1.Utils
 
             string ffmpegPath = "--ffmpeg-location C:/ProgramData/chocolatey/lib/ffmpeg-full/tools/ffmpeg/bin";
 
-            Console.WriteLine($"FolderPath: {FolderPath}\nffmpegPath: {ffmpegPath}\nArgs: {Args}\nUrl: {this.URL}" + "\n-----------------------------------");
+            Console.WriteLine($"FolderPath: {FolderPath}\nffmpegPath: {ffmpegPath}\nArgs: {Args}\nUrl: {this.URL}\nYT-DLP: {this.YtDlpPath}" + "\n-----------------------------------");
 
             string Arguments = $"-w -o \"{FolderPath}\\%(title)s.%(ext)s\" --newline {ffmpegPath} {Args} {this.URL}";
 
             var startInfo = new ProcessStartInfo()
             {
-                FileName = "D:/Desenvolvimento de Softwares/Projetos Pessoais/StreamForge/yt-dlp.exe",
+                FileName = this.YtDlpPath,
                 Arguments = Arguments,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
