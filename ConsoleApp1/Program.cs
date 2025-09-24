@@ -87,7 +87,7 @@ namespace StreamForge
                 
                 if (intOp != 0 && intOp > 4)
                 {
-                    Console.WriteLine("Opção inválida!");
+                    Console.WriteLine("Opção Ruim!");
                     Console.ReadLine();
                 }
 
