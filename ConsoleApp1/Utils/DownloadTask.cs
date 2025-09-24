@@ -17,13 +17,15 @@ namespace ConsoleApp1.Utils
         public int DownloadArgs;
         public string FolderPath;
         public string YtDlpPath;
+        public int DownloadRetries;
 
-        public DownloadTask(string URL, int DownloadArgs, string DownloadPath, string YtDlpPath)
+        public DownloadTask(string URL, int DownloadArgs, string DownloadPath, string YtDlpPath, int DownloadRetries)
         {
             this.URL = URL;
             this.DownloadArgs = DownloadArgs;
             this.FolderPath = DownloadPath;
             this.YtDlpPath = YtDlpPath;
+            this.DownloadRetries = DownloadRetries;
         }
 
         public async Task Baixar()
@@ -51,7 +53,7 @@ namespace ConsoleApp1.Utils
                     Args = "-x --audio-format mp3";
                     break;
                 case 3:
-                    Args = "--ppa \"ThumbnailsConvertor+ffmpeg_o:-vf crop=ih:ih:(iw-ih)/2:0\" -x --audio-format mp3 -f bestaudio --retries 30 --fragment-retries 30";
+                    Args = $"--ppa \"ThumbnailsConvertor+ffmpeg_o:-vf crop=ih:ih:(iw-ih)/2:0\" -x --audio-format mp3 -f bestaudio --retries {this.DownloadRetries} --fragment-retries {this.DownloadRetries}";
                     break;
             }
 

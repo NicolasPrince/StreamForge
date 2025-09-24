@@ -15,6 +15,7 @@ namespace StreamForge
             Baixar =1,
             DownloadArgs,
             ChooseFolder,
+            Retries,
             Sair
         }
 
@@ -49,6 +50,7 @@ namespace StreamForge
 
             int DownloadArgs = LastCFG.LastUsedPreset;
             Folder.FolderPath = LastCFG.DefaultFolderPath;
+            int DownloadRetries = LastCFG.RetriesAmount;
 
             opcaoArgs = (DownloadArgsMenu)DownloadArgs;
 
@@ -58,13 +60,14 @@ namespace StreamForge
                 {
                     DefaultFolderPath = Folder.FolderPath,
                     LastUsedPreset = DownloadArgs,
+                    RetriesAmount = DownloadRetries
                 };
 
                 SettingsManager.Save(CFG);
 
                 Text.Header1();
                 Console.WriteLine("StreamForger " + programVersion);
-                Console.WriteLine("1 - Baixar\n2 - DownloadArgs\n3 - Escolher Pasta\n4 - Sair");
+                Console.WriteLine("1 - Baixar\n2 - DownloadArgs\n3 - Escolher Pasta\n4 - Quantidade de Tentativas\n5 - Sair");
                 Console.WriteLine($"\n\n\n\n\nArgumento: {opcaoArgs}\nPasta de Download:{Folder.FolderPath}");
 
                 var ReadKey = Console.ReadLine();
@@ -85,7 +88,7 @@ namespace StreamForge
                     intOp = int.Parse(ReadKey);
                 }
                 
-                if (intOp != 0 && intOp > 4)
+                if (intOp != 0 && intOp > 5)
                 {
                     Console.WriteLine("Opção Ruim!");
                     Console.ReadLine();
@@ -104,7 +107,7 @@ namespace StreamForge
                         {
                             Console.WriteLine("Insira a URL: ");
                             URL = Console.ReadLine();
-                            DownloadTask Download = new DownloadTask(URL, DownloadArgs, Folder.FolderPath, YtDlpPath);
+                            DownloadTask Download = new DownloadTask(URL, DownloadArgs, Folder.FolderPath, YtDlpPath, DownloadRetries);
                             Download.Baixar();
                         }
                         break;
@@ -120,6 +123,12 @@ namespace StreamForge
                         int intOpArgs = int.Parse(Console.ReadLine());
                         opcaoArgs = (DownloadArgsMenu)intOpArgs;
                         DownloadArgs = intOpArgs;
+                        break;
+                    case Menu.Retries:
+                        Console.Clear();
+                        Console.WriteLine("Escreva um Número de Tentativas pra que o YT-DLP tente fazer o Download com a mesma URL\nExemplo: 1-20\nPadrão: 30");
+                        int Quantidade = int.Parse(Console.ReadLine());
+                        DownloadRetries = Quantidade;
                         break;
                 }
                 Console.Clear();
