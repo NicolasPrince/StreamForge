@@ -13,7 +13,7 @@ namespace ConsoleApp1.Utils
     {
         public string EnsureTool(string LogicalName, string FileName)
         {
-            //Pega o Caminho do "AppData" do Sistema! Actual : %AppData%\StreamForge\bin <--
+            //Pega o Caminho do "AppData" do Sistema! Actual : %AppData%\StreamForge\bin <-- e Salva em BinDirec
             var BinDirec = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StreamForge", "bin");
             Directory.CreateDirectory(BinDirec);
             

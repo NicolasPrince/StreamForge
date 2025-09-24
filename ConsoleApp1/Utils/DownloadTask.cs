@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Resources;
 using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ConsoleApp1.Utils
@@ -22,17 +26,19 @@ namespace ConsoleApp1.Utils
             this.YtDlpPath = YtDlpPath;
         }
 
-        public void Baixar()
+        public async Task Baixar()
         {
             Console.Clear();
+
             if (this.URL.Length == 0)
             {
                 Console.WriteLine("Nenhum Link identificado!\n...");
                 Console.ReadLine();
                 return;
             }
-            Console.WriteLine("-----------------------------------\nMétodo Baixar foi inicializado!\n-----------------------------------");
+
             string Args = "";
+
             switch (DownloadArgs)
             {
                 case 0:
@@ -50,9 +56,7 @@ namespace ConsoleApp1.Utils
             }
 
             string ffmpegPath = "--ffmpeg-location C:/ProgramData/chocolatey/lib/ffmpeg-full/tools/ffmpeg/bin";
-
-            Console.WriteLine($"FolderPath: {FolderPath}\nffmpegPath: {ffmpegPath}\nArgs: {Args}\nUrl: {this.URL}\nYT-DLP: {this.YtDlpPath}" + "\n-----------------------------------");
-
+            
             string Arguments = $"-w -o \"{FolderPath}\\%(title)s.%(ext)s\" --newline {ffmpegPath} {Args} {this.URL}";
 
             var startInfo = new ProcessStartInfo()
@@ -63,16 +67,50 @@ namespace ConsoleApp1.Utils
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = false,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
             };
 
-            Process process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-            string Output = process.StandardOutput.ReadToEnd();
-            string OutputError = process.StandardError.ReadToEnd();
-            Console.WriteLine($"{Output}\n------------------\n{OutputError}");
-            Console.WriteLine("\n-Aperte Enter para voltar ao menu...");
-            Console.ReadLine();
+            var qOut = new ConcurrentQueue<string>();
+
+            var qErr = new ConcurrentQueue<string>();
+
+            using var p = new Process() { StartInfo = startInfo, EnableRaisingEvents = true };
+            p.OutputDataReceived += (_, e) => { if (e.Data is not null) qOut.Enqueue(e.Data); };
+            p.ErrorDataReceived += (_, e) => { if (e.Data is not null) qErr.Enqueue(e.Data); };
+
+            p.StartInfo = startInfo;
+            p.Start();
+            p.BeginErrorReadLine();
+            p.BeginOutputReadLine();
+
+            await p.WaitForExitAsync();
+            Console.WriteLine("Download Finalizado!");
+
+            // Download Finalizado, Iniciando o Processo de Coleta de Informações para salvar os .JSON
+
+            var OutReg = new LogPattern
+            {
+                STDERR = qErr.ToList(),
+                STDOUT = qOut.ToList(),
+            };
+
+            var saver1 = new LogSaver(OutReg, "BBBBBB");
+
+            saver1.Save();
+
+            var DownReg = new HistoryPattern
+            {
+                Title = "",
+                STDOUT_Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StreamForge", "Logs"),
+                DArgs = Args,
+                Url = this.URL,
+                ArchivePath = FolderPath
+            };
+
+            var saver = new HistorySaver(DownReg);
+
+            saver.Save();
         }
     }
 }
